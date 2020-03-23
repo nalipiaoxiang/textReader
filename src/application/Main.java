@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import application.entity.Article;
 import javafx.scene.control.*;
+import lombok.SneakyThrows;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -42,7 +44,8 @@ public class Main extends Application {
 	// 左侧列表
 	ChapterListView chapterList = new ChapterListView();
 	// 右侧tab
-	TabPane tabPane = new TabPane();
+//	TabPane tabPane = new TabPane();
+	TextArea textArea = new TextArea("双击左侧章节");
 
 	public static void main(String[] args) {
 
@@ -62,7 +65,7 @@ public class Main extends Application {
 
 			root.setTop(hBox);
 			root.setLeft(chapterList);
-			root.setCenter(tabPane);
+			root.setCenter(textArea);
 
 			Scene scene = new Scene(root, 800, 400);
 			scene.getStylesheets().add(
@@ -99,30 +102,38 @@ public class Main extends Application {
 		for (Chapter chapter : chapters) {
 			chapterList.data().add(chapter);
 		}
+		chapterList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@SneakyThrows
+			@Override
+			public void handle(MouseEvent event) {
+				//双击
+				if (event.getClickCount() == 2) {
+					showArticle(event);
+				}
+			}
+		});
 	}
 
-//	 private void initFileList() {
-//	 chapterList.setPrefWidth(200);
-//
-//	 // 左侧加载examples目录下的文件
-//	 File dir = new File("files");
-//	 File[] files = dir.listFiles();
-//	 for (File f : files) {
-//	 FileItem item = new FileItem(f);
-//	 chapterList.data().add(item);
-//	 }
+	private void showArticle(MouseEvent event) throws Exception {
+		 int index = chapterList.getSelectionModel().getSelectedIndex();
+		Chapter chapter = chapterList.data().get(index);
+		Article article = WebTxTUtils.getArticle(chapter.getUrl());
+		textArea.setText(article.getTitle()+"\n");
+		textArea.setWrapText(true);
+		String content = article.getContent();
+		textArea.appendText(content);
+//		String hang = "";
+//		for (int i = 0; i < content.length(); i++) {
+//			hang+= content.charAt(i);
+//			if (i%10==0){
+//				textArea.appendText(hang+"\n");
+//				hang="";
+//			}
+//		}
+//		textArea.appendText(hang);
 
-//	 // 当双击左侧时，右侧显示内容
-//	 chapterList.setOnMouseClicked(new EventHandler<MouseEvent>() {
-//	 @Override
-//	 public void handle(MouseEvent event) {
-//	 if (event.getClickCount() == 2) {
-//	 onFileListDbclicked();
-//	 }
-//	 }
-//	 });
-//
-//	 }
+	}
+
 
 	// protected void onFileListDbclicked() {
 	// int index = fileList.getSelectionModel().getSelectedIndex();
@@ -135,51 +146,51 @@ public class Main extends Application {
 	//
 	// }
 
-	private void openFile(FileItem item) throws Exception {
-		// 查看选项卡是否已经打开
-		Tab tab = findTab(item);
-		if (tab != null) {
-			int tabIndex = tabPane.getTabs().indexOf(tab);
-			tabPane.getSelectionModel().select(tabIndex);
-			return;
-		}
+//	private void openFile(FileItem item) throws Exception {
+//		// 查看选项卡是否已经打开
+//		Tab tab = findTab(item);
+//		if (tab != null) {
+//			int tabIndex = tabPane.getTabs().indexOf(tab);
+//			tabPane.getSelectionModel().select(tabIndex);
+//			return;
+//		}
+//
+//		// 打开一个新选项卡
+//		Node contentView = null;
+//		if (item.type == FileItem.TEXT) // text file
+//		{
+//			// 注意: 这里演示的文件是GBK的
+//			String text = TextFileUtils.read(item.file, "GBK");
+//			TextArea t = new TextArea();
+//			t.setText(text);
+//			contentView = t;
+//		} else if (item.type == FileItem.IMAGE) {
+//			Image image = new Image(item.file.toURI().toString());
+//			MyImagePane t = new MyImagePane();
+//			t.showImage(image);
+//			contentView = t;
+//		}
+//
+//		// 添加一个TAB页
+//		tab = new Tab();
+//		tab.setText(item.fileName);
+//		tab.setContent(contentView);
+//		tabPane.getTabs().add(tab);
+//		int tabIndex = tabPane.getTabs().indexOf(tab);
+//		tabPane.getSelectionModel().select(tabIndex);
+//
+//	}
 
-		// 打开一个新选项卡
-		Node contentView = null;
-		if (item.type == FileItem.TEXT) // text file
-		{
-			// 注意: 这里演示的文件是GBK的
-			String text = TextFileUtils.read(item.file, "GBK");
-			TextArea t = new TextArea();
-			t.setText(text);
-			contentView = t;
-		} else if (item.type == FileItem.IMAGE) {
-			Image image = new Image(item.file.toURI().toString());
-			MyImagePane t = new MyImagePane();
-			t.showImage(image);
-			contentView = t;
-		}
-
-		// 添加一个TAB页
-		tab = new Tab();
-		tab.setText(item.fileName);
-		tab.setContent(contentView);
-		tabPane.getTabs().add(tab);
-		int tabIndex = tabPane.getTabs().indexOf(tab);
-		tabPane.getSelectionModel().select(tabIndex);
-
-	}
-
-	private Tab findTab(FileItem item) {
-		ObservableList<Tab> tabs = tabPane.getTabs();
-		for (int i = 0; i < tabs.size(); i++) {
-			Tab t = tabs.get(i);
-			if (t.getText().equals(item.fileName)) {
-				return t;
-			}
-		}
-		return null;
-	}
+//	private Tab findTab(FileItem item) {
+//		ObservableList<Tab> tabs = tabPane.getTabs();
+//		for (int i = 0; i < tabs.size(); i++) {
+//			Tab t = tabs.get(i);
+//			if (t.getText().equals(item.fileName)) {
+//				return t;
+//			}
+//		}
+//		return null;
+//	}
 
 	private List<Chapter> getChapter(String url) throws Exception {
 		return WebTxTUtils.getChapter(url);
