@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javafx.scene.control.*;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -26,11 +27,6 @@ import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -78,8 +74,16 @@ public class Main extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					String url = textField.getText();
+					if (!url.contains("https://www.dingdiann.com")){
+						Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//						alert.titleProperty().set("信息");
+						alert.headerTextProperty().set("不支持该小说网站");
+						alert.showAndWait();
+						return;
+					}
 					try {
 						List<Chapter> chapters = getChapter(url);
+						showChapterList(chapters);
 						System.out.println(chapters);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -91,29 +95,34 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
 	}
+	private void showChapterList(List<Chapter> chapters ){
+		for (Chapter chapter : chapters) {
+			chapterList.data().add(chapter);
+		}
+	}
 
-	// private void initFileList() {
-	// chapterList.setPrefWidth(200);
-	//
-	// // 左侧加载examples目录下的文件
-	// File dir = new File("files");
-	// File[] files = dir.listFiles();
-	// for (File f : files) {
-	// FileItem item = new FileItem(f);
-	// chapterList.data().add(item);
-	// }
-	//
-	// // 当双击左侧时，右侧显示内容
-	// chapterList.setOnMouseClicked(new EventHandler<MouseEvent>() {
-	// @Override
-	// public void handle(MouseEvent event) {
-	// if (event.getClickCount() == 2) {
-	// onFileListDbclicked();
-	// }
-	// }
-	// });
-	//
-	// }
+//	 private void initFileList() {
+//	 chapterList.setPrefWidth(200);
+//
+//	 // 左侧加载examples目录下的文件
+//	 File dir = new File("files");
+//	 File[] files = dir.listFiles();
+//	 for (File f : files) {
+//	 FileItem item = new FileItem(f);
+//	 chapterList.data().add(item);
+//	 }
+
+//	 // 当双击左侧时，右侧显示内容
+//	 chapterList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//	 @Override
+//	 public void handle(MouseEvent event) {
+//	 if (event.getClickCount() == 2) {
+//	 onFileListDbclicked();
+//	 }
+//	 }
+//	 });
+//
+//	 }
 
 	// protected void onFileListDbclicked() {
 	// int index = fileList.getSelectionModel().getSelectedIndex();
